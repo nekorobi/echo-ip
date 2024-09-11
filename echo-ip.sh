@@ -125,7 +125,7 @@ dns() {
     [[ $debug ]] && echo -e "\n# $e"
     # example: o-o.myaddr.1.google.com descriptive text "1.2.3.4"
     #          myip.opendns.com has address 1.2.3.4
-    checkIP "$($e | tail -1 | sed -r 's/^(.+ )?\"?('$re')\"?$/\2/')" && [[ ! $debug ]] && return
+    checkIP "$(timeout 3 $e | tail -1 | sed -r 's/^(.+ )?\"?('$re')\"?$/\2/')" && [[ ! $debug ]] && return
   done
   [[ $debug ]] && return 0
 }
@@ -135,7 +135,7 @@ http() {
   { type curl >/dev/null 2>&1 && [[ $cmd != wget ]]; } || args="$ipv --quiet -O -"
   for e in "${api[@]}"; do
     [[ $debug ]] && echo -e "\n# $cmd $args $e"
-    checkIP "$($cmd $args $e)" && [[ ! $debug ]] && return
+    checkIP "$(timeout 3 $cmd $args $e)" && [[ ! $debug ]] && return
   done
   [[ $debug ]] && return 0
 }
