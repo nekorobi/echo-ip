@@ -1,0 +1,17 @@
+name: Test
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, release/*]
+    paths: ['*.sh', '*.yml']
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: nekorobi/warp-action@v1
+      - uses: actions/checkout@v4
+      - run: ./test/test.sh
+      - name: Close WARP
+        run: warp-cli --accept-tos disconnect && warp-cli --accept-tos registration delete
+        continue-on-error: true
