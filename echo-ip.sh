@@ -16,14 +16,14 @@ Options:
   -4, --ipv4, -6, --ipv6
       IP version. Default: IPv4
   -D, --dns  (Default)
-      Use DNS to show public IP.
+      Show public IP in DNS mode.
       Default TCP. Use --dns-udp for UDP.
       Depends: dig or host command
   -g, --gateway
       Show default gateway address.
       Depends: \`ip route show default\`
   -H, --http
-      Use HTTPS to show public IP.
+      Show public IP in HTTPS mode.
       Depends: curl or wget command
   -s, --src
       Show IP to be routed to the Internet side.
