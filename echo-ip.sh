@@ -1,7 +1,7 @@
 #!/bin/bash
 # echo-ip.sh
 # MIT License © 2024 Nekorobi
-version='1.0.0'
+version='v1.0.1'
 set -o pipefail
 unset debug cmd check
 ipv=-4  re='[0-9.]+'  run=dns  proto=tcp
@@ -36,16 +36,16 @@ Options:
   -h, --help     Show help.
   -V, --version  Show version.
 
-echo-ip.sh v$version
+echo-ip.sh $version
 MIT License © 2024 Nekorobi
 END
 }
 
-error() { echo -e "\e[1;31mError:\e[m $1" 1>&2; [[ $2 ]] && exit $2 || exit 1; }
+error() { local s=$1; shift 1; echo -e "Error: $@" 1>&2; exit $s; }
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
-  -c|--check)     [[ $# = 1 || $2 =~ ^- ]] && error "$1: requires an argument";;&
+  -c|--check)     [[ $# = 1 || $2 =~ ^- ]] && error 1 "$1: requires an argument";;&
   -4|--ipv4)      ipv=-4  re='[0-9.]+'; shift 1;;
   -6|--ipv6)      ipv=-6  re='[0-9a-f:]+'; shift 1;;
   -D|--dns)       run=dns  cmd=dig; shift 1;;
@@ -64,9 +64,9 @@ while [[ $# -gt 0 ]]; do
   # ignore
   "") shift 1;;
   # invalid
-  -*) error "$1: unknown option";;
+  -*) error 1 "$1: unknown option";;
   # Operand
-  *) error "$1: unknown argument";;
+  *) error 1 "$1: unknown argument";;
   esac
 done
 
@@ -118,7 +118,7 @@ srcGateway() {
   checkIP "$(ip $ipv route get $dest | head -1 | sed -r 's/^.+ src ('$re') .+$/\1/')"
 }
 dns() {
-  { type dig || type host; } >/dev/null 2>&1 || error 'require dig or host command' 3
+  { type dig || type host; } >/dev/null 2>&1 || error 3 'require dig or host command'
   local cmdLine=("${dig[@]}")
   { type dig >/dev/null 2>&1 && [[ $cmd != host ]]; } || cmdLine=("${host[@]}")
   for e in "${cmdLine[@]}"; do
@@ -130,7 +130,7 @@ dns() {
   [[ $debug ]] && return 0
 }
 http() {
-  { type curl || type wget; } >/dev/null 2>&1 || error 'require curl or wget command' 3
+  { type curl || type wget; } >/dev/null 2>&1 || error 3 'require curl or wget command'
   local args="$ipv --disable --fail --silent"
   { type curl >/dev/null 2>&1 && [[ $cmd != wget ]]; } || args="$ipv --quiet -O -"
   for e in "${api[@]}"; do
@@ -144,8 +144,8 @@ if [[ $run = checkIP ]]; then
   checkIP "$check" || exit 99
 else
   if [[ $run =~ ^(gateway|src|srcGateway)$ ]]; then
-    type ip >/dev/null 2>&1 || error 'require ip command' 3
+    type ip >/dev/null 2>&1 || error 3 'require ip command'
   fi
-  $run || error 'IP address not found' 9
+  $run || error 9 'IP address not found'
 fi
 # error status: option 1, dependency 3, not found 9, --check 99
