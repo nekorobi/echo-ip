@@ -1,6 +1,8 @@
 name: Test
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '38 21 04 * *'
   push:
     branches: [main, release/*]
     paths: ['*.sh', '*.yml']
